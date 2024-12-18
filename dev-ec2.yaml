@@ -1,0 +1,5 @@
+Description: Development EC2 instance for Bryan
+Resources:
+  ec2:
+    Type: AWS::EC2::Instance
+    DeletionPolicy: Retain
