@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## NOTE: WIP as of 12/18/2024
+
 ## working directory
 sudo mkdir -p /var/cascade
 sudo chown ec2-user /var/cascade
