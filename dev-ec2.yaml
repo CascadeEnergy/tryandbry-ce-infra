@@ -1,5 +1,83 @@
 Description: Development EC2 instance for Bryan
+Outputs:
+  DNSEc2:
+    Description: DNS Name of EC2 instance
+    Value: !Ref Route53Ec2
+  PublicIpEc2:
+    Description: Public IP of EC2 instance
+    Value: !GetAtt ec2.PublicIp
+  # DNSALB:
+  #   Description: DNS Name of ALB
+  #   Value: !Ref Route53Alb
 Resources:
   ec2:
     Type: AWS::EC2::Instance
     DeletionPolicy: Retain
+    Properties:
+      Tags:
+        - Key: Name
+          Value: bryan-dev
+        - Key: owner
+          Value: bryan.kao
+  Route53Ec2:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Type: A
+      HostedZoneId: Z0902760TYAHV8SW0EEY # gazebo.works
+      Name: developer-bryan.gazebo.works
+      TTL: 300
+      ResourceRecords:
+        - !GetAtt ec2.PublicIp
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      Name: bryan-dev
+      Subnets:
+        - subnet-03b6bc61 # us-west-2a
+        - subnet-ff77438b # us-west-2b
+        - subnet-21a0f767 # us-west-2c
+      SecurityGroups:
+        - sg-05cd913205a3f1a83
+      Tags:
+        - Key: owner
+          Value: bryan.kao
+  # Route53Alb:
+  #   Type: AWS::Route53::RecordSetGroup
+  #   Properties:
+  #     Comment: Zone apex alias targeted to ALB
+  #     HostedZoneId: Z0902760TYAHV8SW0EEY # gazebo.works
+  #     RecordSets:
+  #       - Name: dev-bryan.gazebo.works
+  #         Type: A
+  #         AliasTarget: 
+  #           HostedZoneId: !GetAtt ALB.CanonicalHostedZoneID
+  #           DNSName: !GetAtt ALB.DNSName
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Protocol: HTTPS
+      Port: 443
+      SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroup
+      Certificates:
+        - CertificateArn: arn:aws:acm:us-west-2:945568539318:certificate/287ba503-8050-4ac9-91fa-fd65e2790207 # *.gazebo.works
+  ALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      Name: bryan-dev
+      ProtocolVersion: HTTP1
+      HealthCheckPath: /healthcheck
+      HealthCheckTimeoutSeconds: 5
+      VpcId: vpc-33aabf51 # default VPC
+      Targets:
+        - Id: !Ref ec2
+      Tags:
+        - Key: owner
+          Value: bryan.kao
