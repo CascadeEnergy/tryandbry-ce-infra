@@ -6,9 +6,9 @@ Outputs:
   PublicIpEc2:
     Description: Public IP of EC2 instance
     Value: !GetAtt ec2.PublicIp
-  # DNSALB:
-  #   Description: DNS Name of ALB
-  #   Value: !Ref Route53Alb
+  DNSAlb:
+    Description: DNS Name of ALB
+    Value: !Ref Route53Alb
 Resources:
   ec2:
     Type: AWS::EC2::Instance
@@ -43,17 +43,16 @@ Resources:
       Tags:
         - Key: owner
           Value: bryan.kao
-  # Route53Alb:
-  #   Type: AWS::Route53::RecordSetGroup
-  #   Properties:
-  #     Comment: Zone apex alias targeted to ALB
-  #     HostedZoneId: Z0902760TYAHV8SW0EEY # gazebo.works
-  #     RecordSets:
-  #       - Name: dev-bryan.gazebo.works
-  #         Type: A
-  #         AliasTarget: 
-  #           HostedZoneId: !GetAtt ALB.CanonicalHostedZoneID
-  #           DNSName: !GetAtt ALB.DNSName
+  Route53Alb:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Zone apex alias targeted to ALB
+      HostedZoneId: Z0902760TYAHV8SW0EEY # gazebo.works
+      Name: dev-bryan.gazebo.works
+      Type: A
+      AliasTarget: 
+        HostedZoneId: !GetAtt ALB.CanonicalHostedZoneID
+        DNSName: !GetAtt ALB.DNSName
   ALBListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:

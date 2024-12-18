@@ -27,5 +27,5 @@ npm config set legacy-peer-deps=true
 ## configure git
 echo .DS_Store > ~/.gitignore_global
 git config --global core.excludesfile ~/.gitignore_global
-git config --global user.name Bryan Kao
-git config --global user.email bryan.kao@cascadeenergy.com
+git config --global user.name "Bryan Kao"
+git config --global user.email "bryan.kao@cascadeenergy.com"
