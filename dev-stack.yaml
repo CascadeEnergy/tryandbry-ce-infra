@@ -51,6 +51,9 @@ Resources:
           git config --global core.excludesfile ~/.gitignore_global
           git config --global user.name "Bryan Kao"
           git config --global user.email "bryan.kao@cascadeenergy.com"
+
+          ## symlink the cascade folder
+          ln -s /var/cascade
           EOF
       Tags:
         - Key: Name
@@ -115,6 +118,7 @@ Resources:
       VpcId: vpc-33aabf51 # default VPC
       Targets:
         - Id: !Ref ec2
+          Port: 9101
       Tags:
         - Key: owner
           Value: bryan.kao
